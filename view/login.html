@@ -5,6 +5,7 @@
 	<title>Igralniški forum</title>
 	<link rel="stylesheet" type="text/css" href="css/login-register.css">
 	<meta name="author" content="Vid Križnar">
+	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="shortcut icon" type="image/x-icon" href="pictures/if-favicon.ico" />
 	
@@ -17,12 +18,21 @@
 
 		<div class="container">
 			<label for="uname"><b>Username</b></label>
-			<input type="text" placeholder="Enter Username" name="uname" required>
+			<input type="text" placeholder="Vnesi Uporabniško Ime" 
+				%if username:
+					value="{{username}}"
+				%end
+			name="uname" required>
 
 			<label for="psw"><b>Password</b></label>
-			<input type="password" placeholder="Enter Password" name="psw" required>
+			<input type="password" placeholder="Vnesi Geslo" name="psw" required>
 			
 			<button type="submit">Login</button>
+			<h5>
+				%if napaka is not None:
+						{{napaka}}
+				%end
+			</h5>
 		</div>
 
 		<div class="container" style="background-color:#f1f1f1">
