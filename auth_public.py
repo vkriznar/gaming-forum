@@ -1,5 +1,5 @@
 
-db = 'sem2018_vidk'
+db = 'sem2018_galb'
 host = 'baza.fmf.uni-lj.si'
-user = 'vidk'
-password = 'ubistvu_nevem'
+user = 'galb'
+password = 'p13uku5z'

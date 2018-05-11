@@ -9,7 +9,8 @@ baza = psycopg2.connect(database=auth.db, host=auth.host, user=auth.user, passwo
 baza.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) # onemogocimo transakcije
 cur = baza.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-skrivnost = "56 Od nékdej lepé so Ljubljanke slovele, al lepši od Urške bilo ni nobene 56"
+secret = "56 Od nékdej lepé so Ljubljanke slovele, al lepši od Urške bilo ni nobene 56"
+static_directory = "./startbootstrap-modern-business-gh-pages"
 
 def hashano_geslo(s):
     """Vrni MD5 hash danega UTF-8 niza. Gesla vedno spravimo v bazo
@@ -44,10 +45,19 @@ def get_user(auto_login = True, auto_redir=False):
     else:
         return None
 
+@route("/startbootstrap-modern-business-gh-pages/<filename:path>")
+def static(filename):
+    """Funkcija ki vrne vse datoteke, ki so v datoteki startbootstrap-modern-business-gh-pages"""
+    return static_file(filename, root=static_directory)
+
 @get("/login/")
 def login_get():
     curuser = get_user(auto_login = False, auto_redir = True)
     return template("login.html", napaka=None, username=None)
+
+@get("/registration/")
+def registration_get():
+    return template("registration.html")
 
 @post("/login/")
 def login_post():
@@ -56,12 +66,24 @@ def login_post():
     c = baza.cursor()
     c.execute("SELECT * FROM uporabnik WHERE username=%s AND hash=%s", [username, password])
     table_users = c.fetchone()
+    N = 6 #Koliko je iger
+    igre = []
     if table_users is None:
         # Username in geslo se ne ujemata
         return template("login.html", napaka="Nepravilna prijava", username=username)
     else:
+        ID = request.forms.ID
+        c.execute("""SELECT DISTINCT igre.sah, igre.rs. igre.fortnite, igre.skyrim, igre.pubg, igre.mario FROM igre
+                    JOIN uporabnik ON igre.userID = uporabnik.ID
+                    WHERE uporabnik.ID = %s""", [ID])
+        x = c.fetchone()
+        for i in range(0, N):
+            if x[i] == 'true':
+                igre[i] = True
+            else:
+                igre[i] = False
         response.set_cookie('username', username, path='/', secret=secret)
-        redirect('/index/')
+        return template("index.html", user=username, igre=igre)
 
 
 @get("/logout/")
@@ -69,4 +91,4 @@ def logout():
     response.delete_cookie('username', path='/', secret=secret)
     redirect('/login/')
 
-run(host='localhost', port=8080, debug=True)
+run(host='localhost', port=8080)
