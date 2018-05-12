@@ -15,14 +15,13 @@
 		<div class="logo">
 			<img src="/startbootstrap-modern-business-gh-pages/pictures/if-logo.png" alt="Igralniški forum" class="logo">
 		</div>
-
 		<div class="container">
 			<label for="uname"><b>Username</b></label>
-			<input type="text" placeholder="Vnesi Uporabniško Ime" 
+			<input type="username" placeholder="Vnesi Uporabniško Ime" 
 				%if username:
 					value="{{username}}"
 				%end
-			name="uname" required>
+			name="username" required autofocus>
 
 			<label for="psw"><b>Password</b></label>
 			<input type="password" placeholder="Vnesi Geslo" name="psw" required>
