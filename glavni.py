@@ -12,18 +12,17 @@ cur = baza.cursor(cursor_factory=psycopg2.extras.DictCursor)
 secret = "56 Od nékdej lepé so Ljubljanke slovele, al lepši od Urške bilo ni nobene 56"
 static_directory = "./startbootstrap-modern-business-gh-pages"
 
+#username: chenker0
+#password: v1202y
+
+"""Vsa gesla bodo za-hashana, pomozna funkcija za to"""
 def hashano_geslo(s):
-    """Vrni MD5 hash danega UTF-8 niza. Gesla vedno spravimo v bazo
-       kodirana s to funkcijo."""
     h = hashlib.md5()
     h.update(s.encode('utf-8'))
     return h.hexdigest()
 
+"""Dobimo uporabnika iz piskotka, ce ga ni, ga vrzemo na login stran"""
 def get_user(auto_login = True, auto_redir=False):
-    """Poglej cookie in ugotovi, kdo je prijavljeni uporabnik,
-       vrni njegov username in ime. Ce ni prijavljen, presumeri
-       na stran za prijavo ali vrni None (advisno od auto_login).
-    """
     # Dobimo username iz piskotka
     username = request.get_cookie('username', secret=secret)
     # Preverimo, ali ta uporabnik obstaja
@@ -33,7 +32,7 @@ def get_user(auto_login = True, auto_redir=False):
             redirect('/index/')
         else:
             c = baza.cursor()
-            c.execute("SELECT username FROM uporabnik WHERE username=%s", [username])
+            c.execute("SELECT uporabnisko_ime FROM racun WHERE uporabnisko_ime=%s", [username])
             r = c.fetchone()
             c.close ()
             if r is not None:
@@ -47,7 +46,6 @@ def get_user(auto_login = True, auto_redir=False):
 
 @route("/startbootstrap-modern-business-gh-pages/<filename:path>")
 def static(filename):
-    """Funkcija ki vrne vse datoteke, ki so v datoteki startbootstrap-modern-business-gh-pages"""
     return static_file(filename, root=static_directory)
 
 @get("/login/")
@@ -55,33 +53,36 @@ def login_get():
     curuser = get_user(auto_login = False, auto_redir = True)
     return template("login.html", napaka=None, username=None)
 
+"""Route za registrirat"""
 @get("/registration/")
 def registration_get():
     return template("registration.html")
+
 
 @post("/login/")
 def login_post():
     username = request.forms.username
     password = hashano_geslo(request.forms.password)
     c = baza.cursor()
-    c.execute("SELECT * FROM uporabnik WHERE username=%s AND hash=%s", [username, password])
+    c.execute("SELECT * FROM racun WHERE uporabnisko_ime=%s AND geslo=%s", [username, password])
     table_users = c.fetchone()
+    print(table_users)
     N = 6 #Koliko je iger
     igre = []
     if table_users is None:
         # Username in geslo se ne ujemata
         return template("login.html", napaka="Nepravilna prijava", username=username)
     else:
-        ID = request.forms.ID
-        c.execute("""SELECT DISTINCT igre.sah, igre.rs. igre.fortnite, igre.skyrim, igre.pubg, igre.mario FROM igre
-                    JOIN uporabnik ON igre.userID = uporabnik.ID
-                    WHERE uporabnik.ID = %s""", [ID])
+        ID = table_users[0]
+        c.execute("""SELECT igraID FROM igralec
+                    JOIN racun ON igralec.igralecID=racun.ID
+                    WHERE racun.ID=%s""", [ID])
         x = c.fetchone()
         for i in range(0, N):
-            if x[i] == 'true':
-                igre[i] = True
+            if x[0] == i+1:
+                igre.append(True)
             else:
-                igre[i] = False
+                igre.append(False)
         response.set_cookie('username', username, path='/', secret=secret)
         return template("index.html", user=username, igre=igre)
 
