@@ -22,7 +22,7 @@ html {overflow-x: hidden;}
 form {border: 3px solid #f1f1f1; margin-left: auto; margin-right: auto;}
 
 
-input[type=text], input[type=password] {
+input[type=username], input[type=password] {
     width: 100%;
     padding: 12px 20px;
     margin: 8px 0;
