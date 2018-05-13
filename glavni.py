@@ -66,7 +66,6 @@ def login_post():
     c = baza.cursor()
     c.execute("SELECT * FROM racun WHERE uporabnisko_ime=%s AND geslo=%s", [username, password])
     table_users = c.fetchone()
-    print(table_users)
     N = 6 #Koliko je iger
     igre = []
     if table_users is None:
@@ -77,11 +76,14 @@ def login_post():
         c.execute("""SELECT igraID FROM igralec
                     JOIN racun ON igralec.igralecID=racun.ID
                     WHERE racun.ID=%s""", [ID])
-        x = c.fetchone()
         for i in range(0, N):
-            if x[0] == i+1:
-                igre.append(True)
-            else:
+            x = c.fetchone()
+            if x is not None:
+                if x[0] == i+1:
+                    igre.append(True)
+                else:
+                    igre.append(False)
+            if len(igre) < i+1:
                 igre.append(False)
         response.set_cookie('username', username, path='/', secret=secret)
         return template("index.html", user=username, igre=igre)
