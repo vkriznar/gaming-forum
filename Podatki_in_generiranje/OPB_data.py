@@ -1,17 +1,18 @@
 import pandas
 import numpy as np
 import random
-Jeziki = {1: 'Slovene', 2: 'English', 3: 'German', 4: 'Italian', 5: 'French', 6: 'Spanish'}
+Jeziki = {1: 'Slovensko', 2: 'Angleško', 3: 'Nemško', 4: 'Italjansko', 5: 'Francosko', 6: 'Špansko'}
 Igre = {1: 'Runescape', 2: 'Chess', 3: 'Skyrim', 4: 'Fornite',
         5: 'Super Mario', 6: 'PlayerUnknown''s Battlegrounds'}
 Platforme = {1: 'PC', 2: 'Playstation 4', 3: 'XBOX One', 4: 'Nintendo Switch'}
-Klani = {}  # Koliko klanov?
+Klani = {1: 'Marijani', 2: 'Divjaki', 3: 'Bratovščina sinjega galeba',
+         4: 'Gams in pivo'}  # Koliko klanov?
 # za vsako igro tabela vlog.
-Vloge = {1: ['default'], 2: ['default'], 3: ['default'], 4: [],
-         5: ['default'], 6: []}  # morava dodat se vloge v bazo?
-Opcije_komunikacije = {}  # katere opcije komunikacije?
+Vloge = {1: ['Skiller', 'Pker', 'PvMer'], 2: ['Novice', 'Jaša master', 'National master', 'Master', 'Grandmaster'], 3: ['Speed runner', 'Explorer', 'Casual player'],
+         4: ['Team player', 'Solo player'], 5: ['Speed runner', 'Casual player'], 6: ['Solo player', 'Team player']}  # morava dodat se vloge v bazo?
+Opcije_komunikacije = {'Skype', 'Discord', 'Teamspeak'}  # katere opcije komunikacije?
 # To, katera igra je katere zvrsti in katere vloge so v kateri igri bova pac morala peš nrdit, ostalo lahko generirava.
-Zvrst = {}
+Zvrst = {1: 'MMORPG', 2: 'Strategy', 3: 'RPG', 4: 'TPS', 5: 'Arcade', 6: 'FPS'}
 
 stevilo_uporabnikov = 1000
 
