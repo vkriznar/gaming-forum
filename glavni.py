@@ -67,31 +67,45 @@ def login_post():
     c.execute("SELECT * FROM racun WHERE uporabnisko_ime=%s AND geslo=%s", [username, password])
     table_users = c.fetchone()
     N = 6 #Koliko je iger
-    igre = []
     if table_users is None:
         # Username in geslo se ne ujemata
         return template("login.html", napaka="Nepravilna prijava", username=username)
     else:
-        ID = table_users[0]
-        c.execute("""SELECT igraID FROM igralec
-                    JOIN racun ON igralec.igralecID=racun.ID
-                    WHERE racun.ID=%s""", [ID])
-        for i in range(0, N):
-            x = c.fetchone()
-            if x is not None:
-                if x[0] == i+1:
-                    igre.append(True)
-                else:
-                    igre.append(False)
-            if len(igre) < i+1:
-                igre.append(False)
         response.set_cookie('username', username, path='/', secret=secret)
-        return template("index.html", user=username, igre=igre)
+        redirect('/index/')
 
 
 @get("/logout/")
 def logout():
     response.delete_cookie('username', path='/', secret=secret)
     redirect('/login/')
+
+@get("/index/")
+def index():
+    username = request.get_cookie('username', secret=secret)
+    c = baza.cursor()
+    c.execute("SELECT * FROM racun WHERE uporabnisko_ime=%s", [username])
+    table_users = c.fetchone()
+    N = 6  # Koliko je iger
+    igre = []
+    ID = table_users[0]
+    c.execute("""SELECT igraID FROM igralec
+                        JOIN racun ON igralec.id_igralec=racun.id
+                        WHERE racun.ID=%s""", [ID])
+    for i in range(0, N):
+        x = c.fetchone()
+        if x is not None:
+            if x[0] == i + 1:
+                igre.append(True)
+            else:
+                igre.append(False)
+        if len(igre) < i + 1:
+            igre.append(False)
+    return template("index.html", user=username, igre=igre)
+
+
+@get("/index/kontakt/")
+def kontakt():
+    return template("kontakt.html")
 
 run(host='localhost', port=8080)
