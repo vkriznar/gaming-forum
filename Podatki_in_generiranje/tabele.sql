@@ -59,7 +59,8 @@ ime_platforma TEXT UNIQUE NOT NULL
 
 CREATE TABLE na_platformi (
 igra INTEGER REFERENCES igra(id_igra),
-platforma INTEGER REFERENCES platforma(id_platforma)
+platforma INTEGER REFERENCES platforma(id_platforma),
+PRIMARY KEY (igra, platforma)
 );
 
 CREATE TABLE jezik (
@@ -85,7 +86,9 @@ igralec INTEGER REFERENCES racun(id_racun),
 igra INTEGER REFERENCES igra(id_igra),
 vloga INTEGER REFERENCES vloga(id_vloga),
 platforma INTEGER REFERENCES platforma(id_platforma),
-PRIMARY KEY (igralec, igra, vloga, platforma)
+PRIMARY KEY (igralec, igra, vloga, platforma),
+FOREIGN KEY (igra, vloga) REFERENCES ima_vlogo(igra, vloga),
+FOREIGN KEY (igra, platforma) REFERENCES na_platformi(igra, platforma)
 -- CONSTRAINT igra_vloga CHECK(ima_vlogo(igra, vloga) IS NOT NULL),
 -- CONSTRAINT igra_platforma CHECK(na_platformi(igra, platforma) IS NOT NULL)
 );

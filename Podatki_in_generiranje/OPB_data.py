@@ -46,8 +46,8 @@ stevilo_uporabnikov = 1000
 #    return fn(string)
 #
 
-osebe_in = open("osebe_data.csv")
-racuni_in = open("racuni_data.csv")
+osebe_in = open("Podatki_in_generiranje/osebe_data.csv")
+racuni_in = open("Podatki_in_generiranje/racuni_data.csv")
 osebe = csv.reader(osebe_in)
 next(osebe, None)
 racuni = csv.reader(racuni_in)
@@ -134,7 +134,7 @@ for i in range(1, stevilo_uporabnikov + 1):
 for i in range(1, stevilo_uporabnikov + 1):
     for k, v in Igre.items():
         if bool(random.getrandbits(1)):
-            vloga = random.randint(1, len(Vloge_v_igri[k]))
-            platforma = random.randint(1, 4)
+            vloga = Vloge_v_igri[k][random.randint(0, len(Vloge_v_igri[k]) - 1)]
+            platforma = Na_Platformi[k][random.randint(0, len(Na_Platformi[k]) - 1)]
             cur.execute(
                 'INSERT INTO igralec(igralec, igra, vloga, platforma) VALUES (%s, %s, %s, %s)', [i, k, vloga, platforma])
