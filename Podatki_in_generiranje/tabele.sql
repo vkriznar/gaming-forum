@@ -13,6 +13,8 @@ DROP TABLE IF EXISTS govorec CASCADE;
 DROP TABLE IF EXISTS pripadnik CASCADE;
 DROP TABLE IF EXISTS vloga CASCADE;
 DROP TABLE IF EXISTS ima_vlogo CASCADE;
+DROP TABLE IF EXISTS sporocila CASCADE;
+DROP TABLE IF EXISTS clanek CASCADE;
 
 
 CREATE TABLE oseba (
@@ -89,8 +91,6 @@ platforma INTEGER REFERENCES platforma(id_platforma),
 PRIMARY KEY (igralec, igra, vloga, platforma),
 FOREIGN KEY (igra, vloga) REFERENCES ima_vlogo(igra, vloga),
 FOREIGN KEY (igra, platforma) REFERENCES na_platformi(igra, platforma)
--- CONSTRAINT igra_vloga CHECK(ima_vlogo(igra, vloga) IS NOT NULL),
--- CONSTRAINT igra_platforma CHECK(na_platformi(igra, platforma) IS NOT NULL)
 );
 
 CREATE TABLE govorec (
@@ -99,6 +99,19 @@ jezik INTEGER REFERENCES jezik(id_jezik),
 PRIMARY KEY(govorec, jezik)
 );
 
+CREATE TABLE clanek(
+id_clanek SERIAL PRIMARY KEY,
+naslov TEXT NOT NULL,
+vsebina TEXT NOT NULL,
+igra INTEGER REFERENCES igra(id_igra),
+slika TEXT NOT NULL
+);
+
+CREATE TABLE sporocila(
+posiljatelj INTEGER REFERENCES racun(id_racun),
+vsebina TEXT NOT NULL,
+datum TIMESTAMP(0) DEFAULT now()
+);
 
 GRANT ALL ON ALL TABLES IN SCHEMA public TO galb;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO vidk;
