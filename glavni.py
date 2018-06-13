@@ -57,7 +57,37 @@ def login_get():
 """Route za registrirat"""
 @get("/registration/")
 def registration_get():
-    return template("registration.html")
+    return template("registration.html", napaka=None)
+
+@post("/registration/")
+def registration_post():
+    username = request.forms.username
+    password = hashano_geslo(request.forms.password)
+    name = request.forms.name
+    surname = request.forms.surname
+    email = request.forms.email
+    c = baza.cursor()
+    if(username is not None and password is not None and name is not None and surname is not None and email is not None):
+        c.execute("SELECT * FROM racun WHERE uporabnisko_ime=%s", [username])
+        if c.fetchone() is not None:
+            return template("registration.html", napaka="Uporabnik s tem uporabniškim imenom že obstaja")
+        else:
+            c.execute("SELECT COUNT(*) FROM racun")
+            n = c.fetchone()
+            print(n[0])
+            c.execute("""INSERT INTO oseba (id_oseba, ime_oseba, priimek_oseba, email)
+                                        VALUES (%s, %s, %s, %s)""", [n[0] + 1, name, surname, email])
+            c.execute("""INSERT INTO racun (id_racun, uporabnisko_ime, id_lastnik, geslo_hash)
+                            VALUES (%s, %s, %s, %s)""", [n[0]+1, username, n[0]+1, password])
+            response.set_cookie('username', username, path='/', secret=secret)
+            redirect('/registration/igre/')
+    else:
+        return template("registration.html", napaka="Vsa polja morajo biti izpolnjena")
+
+@get("/registration/igre/")
+def registration_igre():
+    return template("registration_igre.html", user=request.get_cookie('username', secret=secret))
+
 
 
 @post("/login/")
@@ -296,5 +326,71 @@ def add():
     c.execute("""INSERT INTO igralec (igralec, igra, vloga, platforma)
                     VALUES (%s, 5, 6, 1)""", [id])
     redirect('/index/supermario/')
+
+
+
+@get("/registration/igre/sah/")
+def add():
+    username = request.get_cookie('username', secret=secret)
+    c = baza.cursor()
+    c.execute("SELECT id_racun FROM racun WHERE uporabnisko_ime=%s", [username])
+    id = c.fetchone()[0]
+    c.execute("""INSERT INTO igralec (igralec, igra, vloga, platforma)
+                    VALUES (%s, 2, 9, 1)""", [id])
+    redirect('/registration/igre/')
+
+
+@get("/registration/igre/runescape/")
+def add():
+    username = request.get_cookie('username', secret=secret)
+    c = baza.cursor()
+    c.execute("SELECT id_racun FROM racun WHERE uporabnisko_ime=%s", [username])
+    id = c.fetchone()[0]
+    c.execute("""INSERT INTO igralec (igralec, igra, vloga, platforma)
+                    VALUES (%s, 1, 3, 1)""", [id])
+    redirect('/registration/igre/')
+
+
+@get("/registration/igre/fortnite/")
+def add():
+    username = request.get_cookie('username', secret=secret)
+    c = baza.cursor()
+    c.execute("SELECT id_racun FROM racun WHERE uporabnisko_ime=%s", [username])
+    id = c.fetchone()[0]
+    c.execute("""INSERT INTO igralec (igralec, igra, vloga, platforma)
+                    VALUES (%s, 4, 4, 1)""", [id])
+    redirect('/registration/igre/')
+
+
+@get("/registration/igre/skyrim/")
+def add():
+    username = request.get_cookie('username', secret=secret)
+    c = baza.cursor()
+    c.execute("SELECT id_racun FROM racun WHERE uporabnisko_ime=%s", [username])
+    id = c.fetchone()[0]
+    c.execute("""INSERT INTO igralec (igralec, igra, vloga, platforma)
+                    VALUES (%s, 3, 7, 2)""", [id])
+    redirect('/registration/igre/')
+
+
+@get("/registration/igre/pubg/")
+def add():
+    username = request.get_cookie('username', secret=secret)
+    c = baza.cursor()
+    c.execute("SELECT id_racun FROM racun WHERE uporabnisko_ime=%s", [username])
+    id = c.fetchone()[0]
+    c.execute("""INSERT INTO igralec (igralec, igra, vloga, platforma)
+                    VALUES (%s, 6, 5, 3)""", [id])
+    redirect('/registration/igre/')
+
+@get("/registration/igre/mario/")
+def add():
+    username = request.get_cookie('username', secret=secret)
+    c = baza.cursor()
+    c.execute("SELECT id_racun FROM racun WHERE uporabnisko_ime=%s", [username])
+    id = c.fetchone()[0]
+    c.execute("""INSERT INTO igralec (igralec, igra, vloga, platforma)
+                    VALUES (%s, 5, 6, 1)""", [id])
+    redirect('/registration/igre/')
 
 run(host='localhost', port=8080)
