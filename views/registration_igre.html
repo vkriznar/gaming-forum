@@ -23,12 +23,14 @@ document.querySelector('meta[name="viewport"]').setAttribute('content', 'width='
 		<div class="logo">
 			<img src="/startbootstrap-modern-business-gh-pages/pictures/if-logo.png" alt="Igralniški forum" class="logo">
 		</div>
-		<h2 class="h2">
-			Izberi si igre katere igraš tako, da klikneš na polje, ki predstavlja igrano igro.
-		</h2>
+		%if user is not None:
+			<h2 class="h2">
+				Pozdravljen {{user}}, izberi si igre katere igraš tako, da klikneš na polje, ki predstavlja dano igro.
+			</h2>
+		%end
 		<div class="contentWidth">
 			<a href="/registration/igre/sah/">
-				<div class="polje1" style="height:220px">
+				<div class="polje1" id="sah" style="height:220px;">
 					<div class="oknce1">
 						<p>Šah</p>
 					</div>
@@ -36,7 +38,7 @@ document.querySelector('meta[name="viewport"]').setAttribute('content', 'width='
 				</div>
 			</a>
 			<a href="/registration/igre/runescape/">
-				<div class="polje2" style="height:220px">
+				<div class="polje2" id="rs" style="height:220px;">
 					<div class="oknce2">
 						<p>Runescape</p>
 					</div>
@@ -47,7 +49,7 @@ document.querySelector('meta[name="viewport"]').setAttribute('content', 'width='
 		</div>
 		<div class="contentWidth">
 			<a href="/registration/igre/fortnite/">
-				<div class="polje1" style="height:220px">
+				<div class="polje1" id="fort" style="height:220px;">
 					<div class="oknce1">
 						<p>Fortnite</p>
 					</div>
@@ -55,7 +57,7 @@ document.querySelector('meta[name="viewport"]').setAttribute('content', 'width='
 				</div>
 			</a>
 			<a href="/registration/igre/skyrim/">
-				<div class="polje2" style="height:220px">
+				<div class="polje2" id="sky" style="height:220px;">
 					<div class="oknce2">
 						<p>Skyrim</p>
 					</div>
@@ -66,7 +68,7 @@ document.querySelector('meta[name="viewport"]').setAttribute('content', 'width='
 		</div>
 		<div class="contentWidth">
 			<a href="/registration/igre/pubg/">
-				<div class="polje1" style="height:220px">
+				<div class="polje1" id="pubg" style="height:220px;">
 					<div class="oknce1">
 						<p>Player Unknown's Battlegrounds</p>
 					</div>
@@ -74,7 +76,7 @@ document.querySelector('meta[name="viewport"]').setAttribute('content', 'width='
 				</div>
 			</a>
 			<a href="/registration/igre/mario/">
-				<div class="polje2" style="height:220px">
+				<div class="polje2" id="mario" style="height:220px;">
 					<div class="oknce2">
 						<p>Super Mario</p>
 					</div>
@@ -89,7 +91,36 @@ document.querySelector('meta[name="viewport"]').setAttribute('content', 'width='
 	</div>
 </div>
 	
-
+%if igre[1]:
+	<script>
+		document.getElementById("sah").style.opacity = "0.5"
+	</script>
+%end
+%if igre[0]:
+	<script>
+		document.getElementById("rs").style.opacity = "0.5"
+	</script>
+%end
+%if igre[3]:
+	<script>
+		document.getElementById("fort").style.opacity = "0.5"
+	</script>
+%end
+%if igre[2]:
+	<script>
+		document.getElementById("sky").style.opacity = "0.5"
+	</script>
+%end
+%if igre[5]:
+	<script>
+		document.getElementById("pubg").style.opacity = "0.5"
+	</script>
+%end
+%if igre[4]:
+	<script>
+		document.getElementById("mario").style.opacity = "0.5"
+	</script>	
+%end
 
 
 </body>
