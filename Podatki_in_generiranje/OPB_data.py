@@ -62,7 +62,7 @@ def hashano_geslo(s):
 
 # vstavljenje v osebe
 for rows in osebe:
-    cur.execute('INSERT INTO oseba(ime_oseba, priimek_oseba, casovni_pas) VALUES ( %s, %s, %s)', [
+    cur.execute('INSERT INTO oseba(ime_oseba, priimek_oseba, email) VALUES ( %s, %s, %s)', [
                 rows[0], rows[1], rows[2]])
 
 # vstavljenje v račune
