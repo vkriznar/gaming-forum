@@ -21,7 +21,7 @@ CREATE TABLE oseba (
 id_oseba SERIAL PRIMARY KEY,
 ime_oseba TEXT NOT NULL,
 priimek_oseba TEXT NOT NULL,
-email UNIQUE TEXT NOT NULL
+email TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE racun (
