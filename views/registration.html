@@ -7,41 +7,54 @@
 	<meta name="author" content="Vid Križnar">
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="shortcut icon" type="image/x-icon" href="/startbootstrap-modern-business-gh-pages/pictures/if-favicon.ico"" />
+	<link rel="shortcut icon" type="image/x-icon" href="/startbootstrap-modern-business-gh-pages/pictures/if-favicon.ico"/>
 	
+	
+<script>
+var siteWidth = 506;
+var scale = screen.width /siteWidth
+
+document.querySelector('meta[name="viewport"]').setAttribute('content', 'width='+siteWidth+', initial-scale='+scale+'');
+</script>
+
 <body>
 	<div class="siteWidth">
-		<form action="#" class="form" style="width:500px">
+		<form action="." class="form" method="post" style="width:500px">
 		<div class="logo">
 			<img src="/startbootstrap-modern-business-gh-pages/pictures/if-logo.png" alt="Igralniški forum" class="logo" style="width: 500px">
 		</div>
-
 		<div class="container">
 			<label for="uname"><b>Username</b></label>
-			<input type="text" placeholder="Vnesi Uporabniško Ime" name="uname" required>
+			<input type="text" placeholder="Vnesi Uporabniško Ime" name="username" required>
 
 			<label for="psw"><b>Password</b></label>
-			<input type="password" placeholder="Vnesi Geslo" name="psw" required>
+			<input type="password" placeholder="Vnesi Geslo" name="password" required>
 			
 			<label for="name"><b>Ime</b></label>
 			<input type="text" placeholder="Vnesi Ime" name="name" required>
 			
 			<label for="sname"><b>Priimek</b></label>
-			<input type="text" placeholder="Vnesi Priimek" name="sname" required>
+			<input type="text" placeholder="Vnesi Priimek" name="surname" required>
 			
 			<label for="mail"><b>E-Mail</b></label>
 			<input type="text" placeholder="Vnesi Email" name="email" required>
 			
 			<button type="submit">Registriraj se</button>
+			<h5>
+				%if napaka is not None:
+						{{napaka}}
+				%end
+			</h5>
 		</div>
+		</form>
 
-		<div class="container" style="background-color:#f1f1f1">
+		<div class="container" style="background-color:#f1f1f1; width: 482px; margin-left: auto; margin-right: auto;">
 			<span class="register">
 				<a href="/login/">Obstoječ uporabnik - Prijavi se</a>
 			</span>
 		</div>
 	</div>
-</form>
+
 	
 
 

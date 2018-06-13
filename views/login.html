@@ -9,6 +9,14 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="shortcut icon" type="image/x-icon" href="/startbootstrap-modern-business-gh-pages/pictures/if-favicon.ico" />
 	
+	
+<script>
+var siteWidth = 960;
+var scale = screen.width /siteWidth
+
+document.querySelector('meta[name="viewport"]').setAttribute('content', 'width='+siteWidth+', initial-scale='+scale+'');
+</script>
+
 <body>
 	<div class="siteWidth">
 		<form action="." role="form" method="post" class="form">
@@ -17,7 +25,7 @@
 		</div>
 		<div class="container">
 			<label for="uname"><b>Username</b></label>
-			<input type="username" placeholder="Vnesi Uporabniško Ime" 
+			<input type="text" placeholder="Vnesi Uporabniško Ime" 
 				%if username:
 					value="{{username}}"
 				%end
