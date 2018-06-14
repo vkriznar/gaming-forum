@@ -158,6 +158,31 @@ def index():
 def kontakt():
     return template("kontakt.html")
 
+@get("/index/messenger/")
+def messenger():
+    username = request.get_cookie('username', secret=secret)
+    c = baza.cursor()
+    c.execute("""SELECT posiljatelj, vsebina FROM sporocila
+                    ORDER BY sporocila.datum ASC""")
+    tmp = c.fetchall()
+    return template("messenger.html", rows=tmp, user=username)
+
+
+@post("/index/messenger/")
+def messenger_post():
+    username = request.get_cookie('username', secret=secret)
+    vsebina = request.forms.vsebina
+    c = baza.cursor()
+    if(vsebina is not ""):
+        c.execute("""INSERT INTO sporocila (posiljatelj, vsebina)
+                        VALUES (%s, %s)""", [username, vsebina])
+        redirect('/index/messenger/')
+    else:
+        c.execute("""SELECT posiljatelj, vsebina FROM sporocila
+                            ORDER BY sporocila.datum ASC""")
+        tmp = c.fetchall()
+        return template("messenger.html", rows=tmp, user=username)
+
 @get("/index/sah/")
 def sah():
     username = request.get_cookie('username', secret=secret)
