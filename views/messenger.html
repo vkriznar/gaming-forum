@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="stylesheet" type="text/css" href="/startbootstrap-modern-business-gh-pages/css/messenger.css">
+    <meta name="description" content="">
+    <meta name="author" content="">
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCnc_HQknZdF5zbJe-RE5xOAFI1wXtarBQ&callback=myMap"></script>
+	<link rel="shortcut icon" type="image/x-icon" href="/startbootstrap-modern-business-gh-pages/pictures/if-favicon.ico" />
+
+    <title>Igralniški forum</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/startbootstrap-modern-business-gh-pages/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/startbootstrap-modern-business-gh-pages/css/modern-business.css" rel="stylesheet">
+
+  </head>
+
+  <body>
+
+    <!-- Navigation -->
+    <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="http://localhost:8080/index/">Igralniški forum</a>
+        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="http://localhost:8080/index/">Domov</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="http://localhost:8080/index/kontakt/">Kontakt Adminov</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPortfolio" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Igre
+              </a>
+              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownPortfolio">
+                <a class="dropdown-item" href="http://localhost:8080/index/sah/">Šah</a>
+                <a class="dropdown-item" href="http://localhost:8080/index/runescape/">Runescape</a>
+                <a class="dropdown-item" href="http://localhost:8080/index/fortnite/">Fortnite</a>
+				<a class="dropdown-item" href="http://localhost:8080/index/skyrim/">Sykrim</a>
+                <a class="dropdown-item" href="http://localhost:8080/index/pubg/">Player Unknown's Battlegrounds</a>
+                <a class="dropdown-item" href="http://localhost:8080/index/supermario/">Super Mario</a>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="http://localhost:8080/index/messenger/">Klepet</a>
+            </li>
+			</li>
+            <li class="nav-item">
+              <a class="nav-link" href="http://localhost:8080/logout/">Odjavi se</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+	
+    <!-- Page Content -->
+   <div class="table-title">
+		<h3>Klepet</h3>
+	</div>
+	<table class="table-fill">
+	<thead>
+		<tr>
+			<th class="text-left">Oseba</th>
+			<th class="text-left">Sporočilo</th>
+		</tr>
+	</thead>
+	<tbody class="table-hover">
+		<tbody>  
+			% if rows is not None:
+			% for row in rows:
+			<tr>
+				%for col in row:
+					%if col == user: 
+						<td class="text-left-me">{{col}}</td>
+					%else:
+						<td class="text-left">{{col}}</td>
+					%end
+				%end
+			</tr>
+			%end
+			%end
+		</tbody>
+	</tbody>
+	</table>
+	<div>
+		<form action="." role="form" method="post" class="form">
+			<div class="container">
+				<label for="vsebina"><b class="add">Dodaj sporočilo</b></label>
+				<input type="text" placeholder="Sporočilo" name="vsebina" style="float:left; width:1000px;">
+				<button type="submit" style="float:right; width:100px; margin-top: 8px;">Pošlji</button>
+			</div>
+		</form>
+	</div>
+    <!-- /.container -->
+
+    <!-- Footer -->
+    <footer class="py-5 bg-dark" style="margin-top:130px">
+      <div class="container">
+        <p class="m-0 text-center text-white">Copyright &copy; LessIsMore 2018</p>
+      </div>
+      <!-- /.container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="/startbootstrap-modern-business-gh-pages/vendor/jquery/jquery.min.js"></script>
+    <script src="/startbootstrap-modern-business-gh-pages/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Contact form JavaScript -->
+    <!-- Do not edit these files! In order to set the email address and subject line for the contact form go to the bin/contact_me.php file. -->
+    <script src="/startbootstrap-modern-business-gh-pages/js/jqBootstrapValidation.js"></script>
+    <script src="/startbootstrap-modern-business-gh-pages/js/contact_me.js"></script>
+
+  </body>
+
+</html>
