@@ -65,6 +65,10 @@ def igra_igre(id):
 def static(filename):
     return static_file(filename, root=static_directory)
 
+@get("/")
+def blank():
+    redirect("/login/")
+
 @get("/login/")
 def login_get():
     curuser = get_user(auto_login = False, auto_redir = True)
@@ -146,7 +150,9 @@ def kontakt():
 @get("/index/messenger/")
 def messenger():
     username = request.get_cookie('username', secret=secret)
-    cur.execute("""SELECT posiljatelj, vsebina FROM sporocila
+    cur.execute("""SELECT racun.uporabnisko_ime, sporocila.vsebina
+                    FROM sporocila 
+                    JOIN racun ON racun.id_racun=sporocila.posiljatelj
                     ORDER BY sporocila.datum ASC""")
     tmp = cur.fetchall()
     return template("messenger.html", rows=tmp, user=username)
@@ -156,13 +162,18 @@ def messenger():
 def messenger_post():
     username = request.get_cookie('username', secret=secret)
     vsebina = request.forms.vsebina
+    cur.execute("SELECT * FROM racun WHERE uporabnisko_ime=%s", [username])
+    id = cur.fetchone()[0]
     if(vsebina is not ""):
+
         cur.execute("""INSERT INTO sporocila (posiljatelj, vsebina)
-                        VALUES (%s, %s)""", [username, vsebina])
+                        VALUES (%s, %s)""", [id, vsebina])
         redirect('/index/messenger/')
     else:
-        cur.execute("""SELECT posiljatelj, vsebina FROM sporocila
-                            ORDER BY sporocila.datum ASC""")
+        cur.execute("""SELECT racun.uporabnisko_ime, sporocila.vsebina
+                    FROM sporocila 
+                    JOIN racun ON racun.id_racun=sporocila.posiljatelj
+                    ORDER BY sporocila.datum ASC""")
         tmp = cur.fetchall()
         return template("messenger.html", rows=tmp, user=username)
 
@@ -174,6 +185,16 @@ def add(igra):
     id=cur.fetchone()[0]
     cur.execute("""INSERT INTO igralec (igralec, igra, vloga, platforma)
                     VALUES (%s, %s, %s, %s)""", [id, igra_id, vloga, platforma])
+    baza.commit()
+    redirect('/index/%s/' % igra)
+
+@get("/index/<igra>/delete")
+def add(igra):
+    igra_id, vloga, platforma = igre_podatki[igra]
+    username = request.get_cookie('username', secret=secret)
+    cur.execute("SELECT id_racun FROM racun WHERE uporabnisko_ime=%s", [username])
+    id=cur.fetchone()[0]
+    cur.execute("DELETE FROM igralec WHERE igralec=%s AND igra=%s", [id, igra_id])
     baza.commit()
     redirect('/index/%s/' % igra)
 
