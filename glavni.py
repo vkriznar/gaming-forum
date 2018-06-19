@@ -1,5 +1,5 @@
 from bottle import *
-import auth as auth
+import auth_public as auth
 import psycopg2, psycopg2.extensions, psycopg2.extras
 import hashlib
 import webbrowser
@@ -12,6 +12,18 @@ cur = baza.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
 secret = "56 Od nékdej lepé so Ljubljanke slovele, al lepši od Urške bilo ni nobene 56"
 static_directory = "./startbootstrap-modern-business-gh-pages"
+
+igre_podatki = {
+    # (igra, vloga, platforma)
+    'sah': (2, 9, 1),
+    'runescape': (1, 3, 1),
+    'fortnite': (4, 4, 1),
+    'skyrim': (3, 7, 2),
+    'pubg': (6, 5, 3),
+    'supermario': (5, 6, 1),
+}
+
+igre_ime = ['rs', 'sah', 'sky', 'fort', 'mario', 'pubg']
 
 webbrowser.open('http://localhost:8080/login/')
 
@@ -32,10 +44,8 @@ def get_user(auto_login = True, auto_redir=False):
             # Ce uporabnik ze prijavljen, ga damo na domačo stran
             redirect('/index/')
         else:
-            c = baza.cursor()
-            c.execute("SELECT uporabnisko_ime FROM racun WHERE uporabnisko_ime=%s", [username])
-            r = c.fetchone()
-            c.close ()
+            cur.execute("SELECT uporabnisko_ime FROM racun WHERE uporabnisko_ime=%s", [username])
+            r = cur.fetchone()
             if r is not None:
                 # uporabnik obstaja, vrnemo njegove podatke
                 return r
@@ -44,6 +54,12 @@ def get_user(auto_login = True, auto_redir=False):
         redirect('/login/')
     else:
         return None
+
+def igra_igre(id):
+    cur.execute("""SELECT igra FROM igralec
+                            JOIN racun ON igralec.igralec=racun.id_racun
+                            WHERE racun.id_racun=%s""", [id])
+    return [igre_ime[igra-1] for igra, in cur]
 
 @route("/startbootstrap-modern-business-gh-pages/<filename:path>")
 def static(filename):
@@ -66,23 +82,17 @@ def registration_post():
     name = request.forms.name
     surname = request.forms.surname
     email = request.forms.email
-    c = baza.cursor()
     if(username is not None and password is not None and name is not None and surname is not None and email is not None):
-        c.execute("SELECT * FROM racun WHERE uporabnisko_ime=%s", [username])
-        if c.fetchone() is not None:
+        cur.execute("SELECT * FROM racun WHERE uporabnisko_ime=%s", [username])
+        if cur.fetchone() is not None:
             return template("registration.html", napaka="Uporabnik s tem uporabniškim imenom že obstaja")
         else:
-            c.execute("SELECT * FROM oseba WHERE email=%s", [email])
-            if c.fetchone() is not None:
+            cur.execute("SELECT * FROM racun WHERE email=%s", [email])
+            if cur.fetchone() is not None:
                 return template("registration.html", napaka="Ta email je že v uporabi")
             else:
-                c.execute("SELECT COUNT(*) FROM racun")
-                n = c.fetchone()
-                print(n[0])
-                c.execute("""INSERT INTO oseba (id_oseba, ime_oseba, priimek_oseba, email)
-                                            VALUES (%s, %s, %s, %s)""", [n[0] + 1, name, surname, email])
-                c.execute("""INSERT INTO racun (id_racun, uporabnisko_ime, id_lastnik, geslo_hash)
-                                VALUES (%s, %s, %s, %s)""", [n[0]+1, username, n[0]+1, password])
+                cur.execute("""INSERT INTO racun (uporabnisko_ime, geslo_hash, ime_oseba, priimek_oseba, email)
+                                VALUES (%s, %s, %s, %s, %s) RETURNING id_racun""", [username,  password, name, surname, email])
                 response.set_cookie('username', username, path='/', secret=secret)
                 redirect('/registration/igre/')
     else:
@@ -91,22 +101,10 @@ def registration_post():
 @get("/registration/igre/")
 def registration_igre():
     username = request.get_cookie('username', secret=secret)
-    c = baza.cursor()
-    c.execute("SELECT * FROM racun WHERE uporabnisko_ime=%s", [username])
-    table_users = c.fetchone()
-    N = 6  # Koliko je iger
-    igre = [False, False, False, False, False, False]
-    ID = table_users[0]
-    c.execute("""SELECT igra FROM igralec
-                                JOIN racun ON igralec.igralec=racun.id_racun
-                                WHERE racun.id_racun=%s""", [ID])
-    x = c.fetchone()
-    while x is not None:
-        for i in range(0, N):
-            if not igre[i]:
-                if x[0] == i + 1:
-                    igre[i] = True
-        x = c.fetchone()
+    cur.execute("SELECT * FROM racun WHERE uporabnisko_ime=%s", [username])
+    table_users = cur.fetchone()
+    id = table_users[0]
+    igre = igra_igre(id)
     return template("registration_igre.html", user=username, igre=igre)
 
 
@@ -115,9 +113,8 @@ def registration_igre():
 def login_post():
     username = request.forms.username
     password = hashano_geslo(request.forms.password)
-    c = baza.cursor()
-    c.execute("SELECT * FROM racun WHERE uporabnisko_ime=%s AND geslo_hash=%s", [username, password])
-    table_users = c.fetchone()
+    cur.execute("SELECT * FROM racun WHERE uporabnisko_ime=%s AND geslo_hash=%s", [username, password])
+    table_users = cur.fetchone()
     N = 6 #Koliko je iger
     if table_users is None:
         # Username in geslo se ne ujemata
@@ -135,22 +132,10 @@ def logout():
 @get("/index/")
 def index():
     username = request.get_cookie('username', secret=secret)
-    c = baza.cursor()
-    c.execute("SELECT * FROM racun WHERE uporabnisko_ime=%s", [username])
-    table_users = c.fetchone()
-    N = 6  # Koliko je iger
-    igre = [False, False, False, False, False, False]
-    ID = table_users[0]
-    c.execute("""SELECT igra FROM igralec
-                        JOIN racun ON igralec.igralec=racun.id_racun
-                        WHERE racun.id_racun=%s""", [ID])
-    x = c.fetchone()
-    while x is not None:
-        for i in range(0, N):
-            if not igre[i]:
-                if x[0] == i+1:
-                    igre[i] = True
-        x = c.fetchone()
+    cur.execute("SELECT * FROM racun WHERE uporabnisko_ime=%s", [username])
+    table_users = cur.fetchone()
+    id = table_users[0]
+    igre = igra_igre(id)
     return template("index.html", user=username, igre=igre)
 
 
@@ -161,10 +146,9 @@ def kontakt():
 @get("/index/messenger/")
 def messenger():
     username = request.get_cookie('username', secret=secret)
-    c = baza.cursor()
-    c.execute("""SELECT posiljatelj, vsebina FROM sporocila
+    cur.execute("""SELECT posiljatelj, vsebina FROM sporocila
                     ORDER BY sporocila.datum ASC""")
-    tmp = c.fetchall()
+    tmp = cur.fetchall()
     return template("messenger.html", rows=tmp, user=username)
 
 
@@ -172,271 +156,46 @@ def messenger():
 def messenger_post():
     username = request.get_cookie('username', secret=secret)
     vsebina = request.forms.vsebina
-    c = baza.cursor()
     if(vsebina is not ""):
-        c.execute("""INSERT INTO sporocila (posiljatelj, vsebina)
+        cur.execute("""INSERT INTO sporocila (posiljatelj, vsebina)
                         VALUES (%s, %s)""", [username, vsebina])
         redirect('/index/messenger/')
     else:
-        c.execute("""SELECT posiljatelj, vsebina FROM sporocila
+        cur.execute("""SELECT posiljatelj, vsebina FROM sporocila
                             ORDER BY sporocila.datum ASC""")
-        tmp = c.fetchall()
+        tmp = cur.fetchall()
         return template("messenger.html", rows=tmp, user=username)
 
-@get("/index/sah/")
-def sah():
+@get("/index/<igra>/add")
+def add(igra):
+    igra_id, vloga, platforma = igre_podatki[igra]
     username = request.get_cookie('username', secret=secret)
-    c = baza.cursor()
-    c.execute("SELECT * FROM racun WHERE uporabnisko_ime=%s", [username])
-    table_users = c.fetchone()
-    N = 6  # Koliko je iger
-    igre = [False, False, False, False, False, False]
-    ID = table_users[0]
-    c.execute("""SELECT igra FROM igralec
-                            JOIN racun ON igralec.igralec=racun.id_racun
-                            WHERE racun.id_racun=%s""", [ID])
-    x = c.fetchone()
-    while x is not None:
-        for i in range(0, N):
-            if not igre[i]:
-                if x[0] == i + 1:
-                    igre[i] = True
-        x = c.fetchone()
-    return template("sah.html", igre=igre)
+    cur.execute("SELECT id_racun FROM racun WHERE uporabnisko_ime=%s", [username])
+    id=cur.fetchone()[0]
+    cur.execute("""INSERT INTO igralec (igralec, igra, vloga, platforma)
+                    VALUES (%s, %s, %s, %s)""", [id, igra_id, vloga, platforma])
+    baza.commit()
+    redirect('/index/%s/' % igra)
 
-@get("/index/sah/add/")
-def add():
+@get("/registration/igre/<igra>/")
+def add(igra):
+    igra_id, vloga, platforma = igre_podatki[igra]
     username = request.get_cookie('username', secret=secret)
-    c = baza.cursor()
-    c.execute("SELECT id_racun FROM racun WHERE uporabnisko_ime=%s", [username])
-    id = c.fetchone()[0]
-    c.execute("""INSERT INTO igralec (igralec, igra, vloga, platforma)
-                    VALUES (%s, 2, 9, 1)""", [id])
-    redirect('/index/sah/')
-
-@get("/index/runescape/")
-def sah():
-    username = request.get_cookie('username', secret=secret)
-    c = baza.cursor()
-    c.execute("SELECT * FROM racun WHERE uporabnisko_ime=%s", [username])
-    table_users = c.fetchone()
-    N = 6  # Koliko je iger
-    igre = [False, False, False, False, False, False]
-    ID = table_users[0]
-    c.execute("""SELECT igra FROM igralec
-                            JOIN racun ON igralec.igralec=racun.id_racun
-                            WHERE racun.id_racun=%s""", [ID])
-    x = c.fetchone()
-    while x is not None:
-        for i in range(0, N):
-            if not igre[i]:
-                if x[0] == i + 1:
-                    igre[i] = True
-        x = c.fetchone()
-    return template("runescape.html", igre=igre)
-
-@get("/index/runescape/add/")
-def add():
-    username = request.get_cookie('username', secret=secret)
-    c = baza.cursor()
-    c.execute("SELECT id_racun FROM racun WHERE uporabnisko_ime=%s", [username])
-    id = c.fetchone()[0]
-    c.execute("""INSERT INTO igralec (igralec, igra, vloga, platforma)
-                    VALUES (%s, 1, 3, 1)""", [id])
-    redirect('/index/runescape/')
-
-
-@get("/index/fortnite/")
-def sah():
-    username = request.get_cookie('username', secret=secret)
-    c = baza.cursor()
-    c.execute("SELECT * FROM racun WHERE uporabnisko_ime=%s", [username])
-    table_users = c.fetchone()
-    N = 6  # Koliko je iger
-    igre = [False, False, False, False, False, False]
-    ID = table_users[0]
-    c.execute("""SELECT igra FROM igralec
-                            JOIN racun ON igralec.igralec=racun.id_racun
-                            WHERE racun.id_racun=%s""", [ID])
-    x = c.fetchone()
-    while x is not None:
-        for i in range(0, N):
-            if not igre[i]:
-                if x[0] == i + 1:
-                    igre[i] = True
-        x = c.fetchone()
-    return template("fortnite.html", igre=igre)
-
-@get("/index/fortnite/add/")
-def add():
-    username = request.get_cookie('username', secret=secret)
-    c = baza.cursor()
-    c.execute("SELECT id_racun FROM racun WHERE uporabnisko_ime=%s", [username])
-    id = c.fetchone()[0]
-    c.execute("""INSERT INTO igralec (igralec, igra, vloga, platforma)
-                    VALUES (%s, 4, 4, 1)""", [id])
-    redirect('/index/fortnite/')
-
-
-@get("/index/skyrim/")
-def sah():
-    username = request.get_cookie('username', secret=secret)
-    c = baza.cursor()
-    c.execute("SELECT * FROM racun WHERE uporabnisko_ime=%s", [username])
-    table_users = c.fetchone()
-    N = 6  # Koliko je iger
-    igre = [False, False, False, False, False, False]
-    ID = table_users[0]
-    c.execute("""SELECT igra FROM igralec
-                            JOIN racun ON igralec.igralec=racun.id_racun
-                            WHERE racun.id_racun=%s""", [ID])
-    x = c.fetchone()
-    while x is not None:
-        for i in range(0, N):
-            if not igre[i]:
-                if x[0] == i + 1:
-                    igre[i] = True
-        x = c.fetchone()
-    return template("skyrim.html", igre=igre)
-
-@get("/index/skyrim/add/")
-def add():
-    username = request.get_cookie('username', secret=secret)
-    c = baza.cursor()
-    c.execute("SELECT id_racun FROM racun WHERE uporabnisko_ime=%s", [username])
-    id = c.fetchone()[0]
-    c.execute("""INSERT INTO igralec (igralec, igra, vloga, platforma)
-                    VALUES (%s, 3, 7, 2)""", [id])
-    redirect('/index/skyrim/')
-
-
-@get("/index/pubg/")
-def sah():
-    username = request.get_cookie('username', secret=secret)
-    c = baza.cursor()
-    c.execute("SELECT * FROM racun WHERE uporabnisko_ime=%s", [username])
-    table_users = c.fetchone()
-    N = 6  # Koliko je iger
-    igre = [False, False, False, False, False, False]
-    ID = table_users[0]
-    c.execute("""SELECT igra FROM igralec
-                            JOIN racun ON igralec.igralec=racun.id_racun
-                            WHERE racun.id_racun=%s""", [ID])
-    x = c.fetchone()
-    while x is not None:
-        for i in range(0, N):
-            if not igre[i]:
-                if x[0] == i + 1:
-                    igre[i] = True
-        x = c.fetchone()
-    return template("pubg.html", igre=igre)
-
-@get("/index/pubg/add/")
-def add():
-    username = request.get_cookie('username', secret=secret)
-    c = baza.cursor()
-    c.execute("SELECT id_racun FROM racun WHERE uporabnisko_ime=%s", [username])
-    id = c.fetchone()[0]
-    c.execute("""INSERT INTO igralec (igralec, igra, vloga, platforma)
-                    VALUES (%s, 6, 5, 3)""", [id])
-    redirect('/index/pubg/')
-
-
-@get("/index/supermario/")
-def sah():
-    username = request.get_cookie('username', secret=secret)
-    c = baza.cursor()
-    c.execute("SELECT * FROM racun WHERE uporabnisko_ime=%s", [username])
-    table_users = c.fetchone()
-    N = 6  # Koliko je iger
-    igre = [False, False, False, False, False, False]
-    ID = table_users[0]
-    c.execute("""SELECT igra FROM igralec
-                            JOIN racun ON igralec.igralec=racun.id_racun
-                            WHERE racun.id_racun=%s""", [ID])
-    x = c.fetchone()
-    while x is not None:
-        for i in range(0, N):
-            if not igre[i]:
-                if x[0] == i + 1:
-                    igre[i] = True
-        x = c.fetchone()
-    return template("supermario.html", igre=igre)
-
-@get("/index/supermario/add/")
-def add():
-    username = request.get_cookie('username', secret=secret)
-    c = baza.cursor()
-    c.execute("SELECT id_racun FROM racun WHERE uporabnisko_ime=%s", [username])
-    id = c.fetchone()[0]
-    c.execute("""INSERT INTO igralec (igralec, igra, vloga, platforma)
-                    VALUES (%s, 5, 6, 1)""", [id])
-    redirect('/index/supermario/')
-
-
-
-@get("/registration/igre/sah/")
-def add():
-    username = request.get_cookie('username', secret=secret)
-    c = baza.cursor()
-    c.execute("SELECT id_racun FROM racun WHERE uporabnisko_ime=%s", [username])
-    id = c.fetchone()[0]
-    c.execute("""INSERT INTO igralec (igralec, igra, vloga, platforma)
-                    VALUES (%s, 2, 9, 1)""", [id])
+    cur.execute("SELECT id_racun FROM racun WHERE uporabnisko_ime=%s", [username])
+    id=cur.fetchone()[0]
+    cur.execute("""INSERT INTO igralec (igralec, igra, vloga, platforma)
+                    VALUES (%s, %s, %s, %s)""", [id, igra_id, vloga, platforma])
+    baza.commit()
     redirect('/registration/igre/')
 
-
-@get("/registration/igre/runescape/")
-def add():
+@get("/index/<igra>/")
+def igra(igra):
     username = request.get_cookie('username', secret=secret)
-    c = baza.cursor()
-    c.execute("SELECT id_racun FROM racun WHERE uporabnisko_ime=%s", [username])
-    id = c.fetchone()[0]
-    c.execute("""INSERT INTO igralec (igralec, igra, vloga, platforma)
-                    VALUES (%s, 1, 3, 1)""", [id])
-    redirect('/registration/igre/')
+    cur.execute("SELECT * FROM racun WHERE uporabnisko_ime=%s", [username])
+    table_users = cur.fetchone()
+    id = table_users[0]
+    igre = igra_igre(id)
+    return template("%s.html" % igra, igre=igre)
 
-
-@get("/registration/igre/fortnite/")
-def add():
-    username = request.get_cookie('username', secret=secret)
-    c = baza.cursor()
-    c.execute("SELECT id_racun FROM racun WHERE uporabnisko_ime=%s", [username])
-    id = c.fetchone()[0]
-    c.execute("""INSERT INTO igralec (igralec, igra, vloga, platforma)
-                    VALUES (%s, 4, 4, 1)""", [id])
-    redirect('/registration/igre/')
-
-
-@get("/registration/igre/skyrim/")
-def add():
-    username = request.get_cookie('username', secret=secret)
-    c = baza.cursor()
-    c.execute("SELECT id_racun FROM racun WHERE uporabnisko_ime=%s", [username])
-    id = c.fetchone()[0]
-    c.execute("""INSERT INTO igralec (igralec, igra, vloga, platforma)
-                    VALUES (%s, 3, 7, 2)""", [id])
-    redirect('/registration/igre/')
-
-
-@get("/registration/igre/pubg/")
-def add():
-    username = request.get_cookie('username', secret=secret)
-    c = baza.cursor()
-    c.execute("SELECT id_racun FROM racun WHERE uporabnisko_ime=%s", [username])
-    id = c.fetchone()[0]
-    c.execute("""INSERT INTO igralec (igralec, igra, vloga, platforma)
-                    VALUES (%s, 6, 5, 3)""", [id])
-    redirect('/registration/igre/')
-
-@get("/registration/igre/mario/")
-def add():
-    username = request.get_cookie('username', secret=secret)
-    c = baza.cursor()
-    c.execute("SELECT id_racun FROM racun WHERE uporabnisko_ime=%s", [username])
-    id = c.fetchone()[0]
-    c.execute("""INSERT INTO igralec (igralec, igra, vloga, platforma)
-                    VALUES (%s, 5, 6, 1)""", [id])
-    redirect('/registration/igre/')
 
 run(host='localhost', port=8080)

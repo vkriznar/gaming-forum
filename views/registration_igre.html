@@ -75,7 +75,7 @@ document.querySelector('meta[name="viewport"]').setAttribute('content', 'width='
 					<img id="slika" src="/startbootstrap-modern-business-gh-pages/pictures/pubg3001.jpg" width="100%" alt="10 let garancije">			
 				</div>
 			</a>
-			<a href="/registration/igre/mario/">
+			<a href="/registration/igre/supermario/">
 				<div class="polje2" id="mario" style="height:220px;">
 					<div class="oknce2">
 						<p>Super Mario</p>
@@ -91,36 +91,11 @@ document.querySelector('meta[name="viewport"]').setAttribute('content', 'width='
 	</div>
 </div>
 	
-%if igre[1]:
-	<script>
-		document.getElementById("sah").style.opacity = "0.5"
-	</script>
+<script>
+%for igra in igre:
+    document.getElementById("{{igra}}").style.opacity = "0.5";
 %end
-%if igre[0]:
-	<script>
-		document.getElementById("rs").style.opacity = "0.5"
-	</script>
-%end
-%if igre[3]:
-	<script>
-		document.getElementById("fort").style.opacity = "0.5"
-	</script>
-%end
-%if igre[2]:
-	<script>
-		document.getElementById("sky").style.opacity = "0.5"
-	</script>
-%end
-%if igre[5]:
-	<script>
-		document.getElementById("pubg").style.opacity = "0.5"
-	</script>
-%end
-%if igre[4]:
-	<script>
-		document.getElementById("mario").style.opacity = "0.5"
-	</script>	
-%end
+</script>
 
 
 </body>
