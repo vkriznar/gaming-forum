@@ -16,19 +16,13 @@ DROP TABLE IF EXISTS ima_vlogo CASCADE;
 DROP TABLE IF EXISTS sporocila CASCADE;
 DROP TABLE IF EXISTS clanek CASCADE;
 
-
-CREATE TABLE oseba (
-id_oseba SERIAL PRIMARY KEY,
+CREATE TABLE racun (
+id_racun SERIAL PRIMARY KEY,
+uporabnisko_ime TEXT UNIQUE NOT NULL,
+geslo_hash TEXT NOT NULL,
 ime_oseba TEXT NOT NULL,
 priimek_oseba TEXT NOT NULL,
 email TEXT UNIQUE NOT NULL
-);
-
-CREATE TABLE racun (
-id_racun SERIAL PRIMARY KEY,
-uporabnisko_ime TEXT NOT NULL,
-id_lastnik INTEGER UNIQUE NOT NULL REFERENCES oseba(id_oseba),
-geslo_hash TEXT NOT NULL
 );
 
 CREATE TABLE zvrst (
@@ -108,7 +102,7 @@ slika TEXT NOT NULL
 );
 
 CREATE TABLE sporocila(
-posiljatelj INTEGER REFERENCES racun(id_racun),
+posiljatelj text REFERENCES racun(uporabnisko_ime),
 vsebina TEXT NOT NULL,
 datum TIMESTAMP(0) DEFAULT now()
 );
@@ -119,3 +113,6 @@ GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO galb WITH GRANT OPTION;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO vidk WITH GRANT OPTION;
 GRANT CONNECT ON DATABASE sem2018_galb TO javnost;
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO javnost;
+GRANT INSERT ON public.racun TO javnost;
+GRANT INSERT ON public.sporocila TO javnost;
+GRANT INSERT ON public.igralec TO javnost;

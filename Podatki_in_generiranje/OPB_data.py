@@ -46,10 +46,7 @@ stevilo_uporabnikov = 1000
 #    return fn(string)
 #
 
-osebe_in = open("Podatki_in_generiranje/osebe_data.csv")
-racuni_in = open("Podatki_in_generiranje/racuni_data.csv")
-osebe = csv.reader(osebe_in)
-next(osebe, None)
+racuni_in = open("/Users/Gal/Documents/GitHub/gaming-forum/Podatki_in_generiranje/racuni_data.csv")
 racuni = csv.reader(racuni_in)
 next(racuni, None)
 
@@ -60,15 +57,10 @@ def hashano_geslo(s):
     return h.hexdigest()
 
 
-# vstavljenje v osebe
-for rows in osebe:
-    cur.execute('INSERT INTO oseba(ime_oseba, priimek_oseba, email) VALUES ( %s, %s, %s)', [
-                rows[0], rows[1], rows[2]])
-
 # vstavljenje v račune
 for rows in racuni:
-    cur.execute('INSERT INTO racun(uporabnisko_ime, id_lastnik, geslo_hash) VALUES (%s, %s, %s)', [
-                rows[0], rows[1], hashano_geslo(rows[2])])
+    cur.execute('INSERT INTO racun(uporabnisko_ime, geslo_hash, ime_oseba, priimek_oseba, email) VALUES (%s, %s, %s, %s, %s)', [
+                rows[0], hashano_geslo(rows[1]), rows[2], rows[3], rows[4]])
 
 # vstavljanje v zvrsti
 for k, v in Zvrst.items():
