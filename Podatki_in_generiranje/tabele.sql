@@ -116,3 +116,4 @@ GRANT SELECT ON ALL TABLES IN SCHEMA public TO javnost;
 GRANT INSERT ON public.racun TO javnost;
 GRANT INSERT ON public.sporocila TO javnost;
 GRANT INSERT ON public.igralec TO javnost;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO javnost;
