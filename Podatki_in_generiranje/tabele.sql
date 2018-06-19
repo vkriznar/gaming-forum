@@ -102,7 +102,8 @@ slika TEXT NOT NULL
 );
 
 CREATE TABLE sporocila(
-posiljatelj text REFERENCES racun(uporabnisko_ime),
+id_sporocilo SERIAL PRIMARY KEY,
+posiljatelj INTEGER REFERENCES racun(id_racun),
 vsebina TEXT NOT NULL,
 datum TIMESTAMP(0) DEFAULT now()
 );
@@ -116,4 +117,5 @@ GRANT SELECT ON ALL TABLES IN SCHEMA public TO javnost;
 GRANT INSERT ON public.racun TO javnost;
 GRANT INSERT ON public.sporocila TO javnost;
 GRANT INSERT ON public.igralec TO javnost;
+GRANT DELETE ON public.igralec TO javnost;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO javnost;
