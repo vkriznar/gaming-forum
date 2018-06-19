@@ -55,7 +55,6 @@ def get_user(auto_login = True, auto_redir=False):
     else:
         return None
 
-
 def igra_igre(id):
     cur.execute("""SELECT igra FROM igralec
                             JOIN racun ON igralec.igralec=racun.id_racun

@@ -67,7 +67,7 @@
       <!-- Page Heading/Breadcrumbs -->
       <h1 class="mt-4 mb-3">Skyrim 
         <small>
-		<a id="dodaj" class="btn btn-primary" href="add/" style="float: right; display: none">Dodaj igro
+		<a id="dodaj" class="btn btn-primary" href="http://localhost:8080/index/skyrim/add" style="float: right; display: none">Dodaj igro
 			<span class="glyphicon glyphicon-chevron-right"></span>
 		</a>
 		</small>
@@ -165,7 +165,7 @@
       <!-- /.container -->
     </footer>
 	
-	%if igre[2]:
+	%if 'sky' in igre:
 	<script>
 		document.getElementById("dodaj").style.display = "none"
 		document.getElementById("dodano").style.display = "block"

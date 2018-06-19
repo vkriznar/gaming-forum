@@ -80,7 +80,7 @@
 			% for row in rows:
 			<tr>
 				%for col in row:
-					%if col == user: 
+					%if row[0] == user or row[1] == user: 
 						<td class="text-left-me">{{col}}</td>
 					%else:
 						<td class="text-left">{{col}}</td>
